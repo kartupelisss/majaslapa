@@ -1,25 +1,27 @@
-# Izmanto Node.js oficiālo attēlu
-FROM node:20-alpine
-
-# Darba direktorija konteinerā
+# --- 1) Atkarības ---
+FROM node:20-alpine AS deps
 WORKDIR /app
-
-# Nokopē package.json un package-lock.json (ja ir)
 COPY package*.json ./
+# nelietojam `ci`; ļaujam npm atrisināt atkarības
+RUN npm install --legacy-peer-deps
 
-# Instalē atkarības
-# Ja ir lockfile, izmanto to, ja nav — instalē parastā veidā
-RUN if [ -f package-lock.json ]; then npm ci --omit=dev; \
-    else npm install --omit=dev; fi
-
-# Nokopē visu projektu
+# --- 2) Build ---
+FROM node:20-alpine AS build
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-
-# Izbūvē Next.js projektu
+# ja vajag, var atslēgt Next telemetriju:
+ENV NEXT_TELEMETRY_DISABLED=1
 RUN npm run build
 
-# Atver porta
-EXPOSE 3000
+# --- 3) Runtime ---
+FROM node:20-alpine AS runner
+WORKDIR /app
+ENV NODE_ENV=production
+# iekopējam visu, ko uzbūvējām
+COPY --from=build /app ./
+# izvācam dev-deps no gala attēla
+RUN npm prune --omit=dev
 
-# Startē serveri
-CMD ["npm", "start"]
+EXPOSE 3000
+CMD ["npm","start"]
