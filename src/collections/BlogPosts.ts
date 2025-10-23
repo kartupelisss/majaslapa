@@ -78,6 +78,23 @@ const BlogPosts: CollectionConfig = {
       },
     },
   ],
+
+  // ===== Automātiska Netlify pārbūve pēc izmaiņām =====
+  hooks: {
+    afterChange: [
+      async () => {
+        try {
+          await fetch('https://api.netlify.com/build_hooks/68fab3d3623f80d3aa674553', {
+            method: 'POST',
+          })
+          console.log('✅ Netlify build triggered after Insight change')
+        } catch (error) {
+          console.error('❌ Neizdevās izsaukt Netlify build hook:', error)
+        }
+      },
+    ],
+  },
+
   timestamps: true,
 }
 
