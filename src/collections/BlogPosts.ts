@@ -2,14 +2,62 @@ import { CollectionConfig } from 'payload'
 
 const BlogPosts: CollectionConfig = {
   slug: 'blog-posts',
-  admin: { useAsTitle: 'title' },
-  access: { read: () => true },
+  labels: {
+    singular: 'Raksts',
+    plural: 'Insights raksti',
+  },
+  admin: {
+    useAsTitle: 'title',
+  },
+  access: {
+    read: () => true,
+  },
   fields: [
-    { name: 'title', type: 'text', required: true },
-    { name: 'slug', type: 'text', required: true, unique: true },
-    { name: 'excerpt', type: 'textarea' },
-    { name: 'content', type: 'richText', required: true },
-    { name: 'publishedDate', type: 'date', required: true },
+    {
+      name: 'title',
+      label: 'Virsraksts',
+      type: 'text',
+      required: true,
+    },
+    {
+      name: 'slug',
+      label: 'Slug (URL daļa)',
+      type: 'text',
+      required: true,
+      unique: true,
+    },
+    {
+      name: 'publishedDate',
+      label: 'Publicēšanas datums',
+      type: 'date',
+      required: true,
+      admin: {
+        date: { pickerAppearance: 'dayOnly' },
+      },
+    },
+    {
+      name: 'excerpt',
+      label: 'Īss ievada teksts',
+      type: 'textarea',
+    },
+    {
+      name: 'content',
+      label: 'Galvenais saturs (raksta teksts)',
+      type: 'richText',
+      required: true,
+    },
+    {
+      name: 'summary',
+      label: 'Kopsavilkums (bullet punkti)',
+      type: 'array',
+      fields: [
+        {
+          name: 'item',
+          label: 'Punkts',
+          type: 'text',
+        },
+      ],
+    },
   ],
 }
 
